@@ -1,0 +1,27 @@
+@import 'tailwind/_base.css';
+@import 'tailwind/_components.css';
+@import 'tailwind/_utilities.css';
+
+@import '_checkbox-radio-switch.css';
+@import '_progress.css';
+@import '_scrollbars.css';
+@import '_table.css';
+
+@import 'styles/_basic.css';
+@import 'styles/_white.css';
+
+
+.login-input:-webkit-autofill,
+.login-input:-webkit-autofill:hover,
+.login-input:-webkit-autofill:focus,
+.login-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+  box-shadow: 0 0 0px 1000px white inset !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
+.login-input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
