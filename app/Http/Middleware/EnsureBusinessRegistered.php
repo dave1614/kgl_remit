@@ -21,6 +21,10 @@ class EnsureBusinessRegistered
             return $next($request);
         }
 
+        if ($user->is_admin == 1) {
+            return $next($request);
+        }
+
         $registration = $user->businessRegistrations()->first();
 
         // If no registration exists, create empty registration (optional)

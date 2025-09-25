@@ -70,7 +70,7 @@ class BusinessRegistration extends Model
 
     public function scopeFilterEmail($query, $email)
     {
-        $query->whereHas('user', function ($q) use ($email) {
+        return $query->whereHas('user', function ($q) use ($email) {
             $q->where("email", "like", "%$email%");
         });
     }

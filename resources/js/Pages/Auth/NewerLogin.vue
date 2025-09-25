@@ -63,9 +63,21 @@ const submit = () => {
                     <LoginInput v-model="form.password" :error="form.errors.password" type="password" id="password"
                         placeholder="Password" class="" icon="fa-solid fa-lock" />
 
+                    <div class="h-[10px]"></div>
 
+                    <div class="mt-4 mb-3 px-1">
+                        <div class="inline-block">
+                            <input type="checkbox" name="remember_me" class="login-checkbox" id="terms"
+                                v-model="form.remember_me" />
+                            <label for="terms" class="login-checkbox-label text-gray-400">Remember me</label>
 
-                    <div class="h-[20px]"></div>
+                        </div>
+
+                        <Link :href="route('password.request')"
+                            class="login-checkbox-label mt-1 float-right hover:text-primary text-slate-700 hover:underline">
+                        Forgot Password?
+                        </Link>
+                    </div>
 
                     <!-- Submit -->
                     <button type="submit" :disabled="form.processing" class="w-1/2 bg-gradient-to-r from-purple-500 to-blue-500
@@ -73,7 +85,7 @@ const submit = () => {
          transition-all duration-300 relative">
 
                         <span class="inline-block mt-1 font-bold">
-                            Sign Up
+                            Sign In
                         </span>
                         <!-- Transparent circle with outline for arrow -->
 
@@ -109,5 +121,3 @@ const submit = () => {
         </div>
     </div>
 </template>
-
-

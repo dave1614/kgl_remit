@@ -21,7 +21,7 @@ use App\Http\Controllers\Client\RateController;
 use App\Http\Controllers\Client\ReceiptController;
 use App\Http\Controllers\Client\TransactionController;
 use App\Http\Controllers\DashboardController;
-
+use App\Http\Controllers\Client\FxController;
 use App\Http\Controllers\HomeController;
 
 use App\Http\Controllers\MainPageController;
@@ -89,7 +89,7 @@ Route::get('/error', function () {
 
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 Route::post('/submit_front_page_message', [MainPageController::class, 'submitFrontPageMessage'])->name('submit_front_page_message');
 
@@ -134,8 +134,6 @@ Route::prefix('client')->name('client.')->middleware(['auth', 'verified'])->grou
 
 
         Route::post('/location/get_new_wards/{lga}', [LocationController::class, 'getNewWards'])->name('get_new_wards');
-
-
     });
 });
 
@@ -173,18 +171,30 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
 
 
     Route::post('/kyc/{id}/approve', [AdminKycController::class, 'approve'])
-    ->name('kyc.approve');
+        ->name('kyc.approve');
     Route::post('/kyc/{id}/reject', [AdminKycController::class, 'reject'])
-    ->name('kyc.reject');
+        ->name('kyc.reject');
     Route::post('/kyc/{id}/delete', [AdminKycController::class, 'delete'])
-    ->name('kyc.delete');
+        ->name('kyc.delete');
 
 
     // Transactions
-    Route::get('/transactions', [AdminTransactionController::class, 'pending'])->name('transactions.index');
+    Route::get('/transactions', [AdminTransactionController::class, 'index'])->name('transactions.index');
 
-    Route::put('/transactions/{transaction}/approve', [AdminTransactionController::class, 'approve'])->name('transactions.approve');
-    Route::put('/transactions/{transaction}/reject', [AdminTransactionController::class, 'reject'])->name('transactions.reject');
+    Route::post('/transactions/all', [AdminTransactionController::class, 'viewAllTransactions'])->name('transactions.all');
+
+    Route::get('transactions/{transaction}/approval-data', [AdminTransactionController::class, 'approvalData'])
+        ->name('transactions.approval-data');
+
+
+    Route::post('transactions/{transaction}/approve', [AdminTransactionController::class, 'approve'])
+        ->name('transactions.approve');
+    Route::post('/transactions/{transaction}/reject', [AdminTransactionController::class, 'reject'])->name('transactions.reject');
+
+    Route::post('/transactions/{transaction}/payment-received', [AdminTransactionController::class, 'markPaymentReceived'])->name('transactions.payment_received');
+    Route::post('/transactions/{transaction}/payment-processed', [AdminTransactionController::class, 'markPaymentProcessed'])->name('transactions.payment_processed');
+
+
 
     // Invoices & Proofs
     Route::get('/invoices', [AdminInvoiceController::class, 'index'])->name('invoices.index');
@@ -209,13 +219,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     // Route::post('/support/messages/reply/{message}', [SupportController::class, 'reply'])->name('support.messages.reply');
 
     // System Settings
-    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
-    Route::post('/settings/admins', [SettingController::class, 'storeAdmin'])->name('settings.admins.store');
-    Route::put('/settings/admins/{admin}', [SettingController::class, 'updateAdmin'])->name('settings.admins.update');
-    Route::delete('/settings/admins/{admin}', [SettingController::class, 'destroyAdmin'])->name('settings.admins.destroy');
-
-    Route::get('/settings/general', [SettingController::class, 'general'])->name('settings.general');
-    Route::put('/settings/general', [SettingController::class, 'updateGeneral'])->name('settings.general.update');
+    Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
+    Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
 });
 
 
@@ -283,10 +288,25 @@ Route::prefix('client')->name('client.')->middleware(['auth', 'verified', 'ensur
 
     // Invoices & Receipts
     Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('/transactions/{transaction}/invoice', [TransactionController::class, 'showInvoice'])->name('transactions.invoice');
+
+    Route::get('/transactions/{transaction}/receipt', [TransactionController::class, 'showReceipt'])->name('transactions.receipt');
+
+    Route::get('/transactions/{transaction}/download-invoice', [TransactionController::class, 'downloadInvoice'])->name('transactions.downloadInvoice');
+
+    Route::post('/transactions/{transaction}/upload-proof', [TransactionController::class, 'uploadProof'])->name('transactions.uploadProof');
+
     Route::get('/receipts', [ReceiptController::class, 'index'])->name('receipts.index');
 
     // Rates
     Route::get('/rates', [RateController::class, 'index'])->name('rates.index');
+
+    //Fx Calculator
+    Route::get('/fx-calculator', [FxController::class, 'index'])->name('fx.index');
+    Route::post('/fx/calculate', [FxController::class, 'calculate'])
+        ->name('fx.calculate');
+
+
 
 
 
@@ -311,4 +331,3 @@ Route::prefix('client')->name('client.')->middleware(['auth', 'verified', 'ensur
     // Route::get('/settings/notifications', [SettingController::class, 'notifications'])->name('settings.notifications');
     // Route::put('/settings/notifications', [SettingController::class, 'updateNotifications'])->name('settings.notifications.update');
 });
-

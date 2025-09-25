@@ -61,7 +61,7 @@ export default [
         icon: mdiCashMultiple,
         menu: [
             {
-                href: "/client/transactions?create=true",
+                route: "client.transactions.create",
                 label: "New Transaction",
             },
             {
@@ -84,10 +84,20 @@ export default [
             },
         ],
     },
+
     {
-        route: "client.rates.index",
-        icon: mdiSwapHorizontal,
         label: "Rates",
+        icon: mdiSwapHorizontal,
+        menu: [
+            {
+                route: "client.rates.index",
+                label: "View Rates",
+            },
+            {
+                route: "client.fx.index",
+                label: "Fx Calculator",
+            },
+        ],
     },
     {
         label: "Settings",

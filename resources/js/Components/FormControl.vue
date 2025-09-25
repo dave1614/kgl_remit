@@ -47,6 +47,7 @@ const props = defineProps({
   borderless: Boolean,
   transparent: Boolean,
   ctrlKFocus: Boolean,
+  readonly: Boolean,
 });
 
 const emit = defineEmits(["update:modelValue", "setRef"]);
@@ -61,7 +62,7 @@ const computedValue = computed({
 const inputElClass = computed(() => {
   const base = [
     // "px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full",
-    
+
     "dark:placeholder-gray-400",
     props.error ? 'app-form-input-error' : 'app-form-input',
     computedType.value === "textarea" ? "h-24" : "h-12",
@@ -165,6 +166,7 @@ if (props.ctrlKFocus) {
       :type="computedType"
       :step="computedType == 'number' ? 'any' : ''"
       :class="inputElClass"
+      :readonly="readonly"
     />
     <FormControlIcon v-if="icon" :icon="icon" :h="controlIconH" />
     <div v-if="error" class="app-form-error">{{ error }}</div>

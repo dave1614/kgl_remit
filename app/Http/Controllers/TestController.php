@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Functions\UsefulFunctions;
 use App\Models\CommunityHeadRequest;
+use App\Models\Currency;
 use App\Models\InecState;
 use App\Models\Post;
 use App\Models\User;
@@ -162,6 +163,10 @@ class TestController extends Controller
         // $ids_to_credit = $this->functions->getIdsToCreditPlacement(3, 24);
         // return ($ids_to_credit);
 
+        $from = Currency::inRandomOrder()->first();
+        $to = Currency::inRandomOrder()->first();
+
+        return $this->functions->findLiveConversionRate($from->code, $to->code);
     }
 
     public function socialMediaHomePage(Request $request){

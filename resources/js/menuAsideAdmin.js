@@ -54,12 +54,17 @@ export default [
             },
         ],
     },
+
     {
         label: "Transactions",
         icon: mdiCashMultiple,
         menu: [
             {
                 route: "admin.transactions.index",
+                label: "All Transactions",
+            },
+            {
+                href: "/admin/transactions?status=pending_request",
                 label: "Pending Approvals",
             },
             {
@@ -116,7 +121,7 @@ export default [
         ],
     },
     {
-        route: "admin.settings.index",
+        route: "admin.settings.edit",
         label: "System Settings",
         icon: mdiCog,
 
