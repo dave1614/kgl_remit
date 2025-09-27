@@ -43,6 +43,7 @@ return new class extends Migration
             $table->decimal('final_rate', 20, 6)->nullable(); // admin’s final rate
             $table->decimal('final_amount_to_pay', 20, 6)->nullable(); // admin’s final amount
 
+
             $table->integer('invoice_expiry_minutes')->nullable(); //ow much time in minutes it takes the invoice to expire;
 
             //Bank Details
@@ -68,6 +69,8 @@ return new class extends Migration
             $table->timestamp('rejected_at')->nullable();
 
             // invoice expiry + proof upload
+
+            $table->timestamp('invoice_generated_at')->nullable();
             $table->timestamp('invoice_expires_at')->nullable();
             $table->string('payment_proof_path')->nullable();
 

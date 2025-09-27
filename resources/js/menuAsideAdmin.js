@@ -83,15 +83,11 @@ export default [
         menu: [
             {
                 route: "admin.invoices.index",
-                label: "Submitted Invoices",
+                label: "All Invoices",
             },
             {
-                href: "/admin/invoices?status=approved",
-                label: "Approved Invoices",
-            },
-            {
-                href: "/admin/invoices?status=rejected",
-                label: "Rejected Invoices",
+                route: "admin.receipts.index",
+                label: "All Receipts",
             },
 
         ],
@@ -108,18 +104,18 @@ export default [
 
         ],
     },
-    {
-        label: "Reports",
-        icon: mdiFileChart,
-        menu: [
-            {
-                route: "admin.reports.index",
-                label: "Daily / Weekly / Monthly Reports",
-            },
+    // {
+    //     label: "Reports",
+    //     icon: mdiFileChart,
+    //     menu: [
+    //         {
+    //             route: "admin.reports.index",
+    //             label: "Daily / Weekly / Monthly Reports",
+    //         },
 
 
-        ],
-    },
+    //     ],
+    // },
     {
         route: "admin.settings.edit",
         label: "System Settings",

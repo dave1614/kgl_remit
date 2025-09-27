@@ -188,7 +188,7 @@ function submitProof() {
 
         </div>
 
-        <div v-else-if="expired" class="text-red-600 font-bold text-lg mt-4">
+        <div v-else-if="props.transaction.status === 'pending_payment' && expired" class="text-red-600 font-bold text-lg mt-4">
             This invoice has expired.
         </div>
 

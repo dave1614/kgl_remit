@@ -48,7 +48,8 @@ class UserTransactionProcessedNotification extends Notification
         $this->closing_message = 'Regards, The Support Team ' . env('APP_NAME');
 
         $this->action_button  = [
-            ['View Receipt', url(route('client.transactions.receipt', $transaction->id))]
+            ['View Receipt', url(route('client.transactions.receipt', $transaction->id))],
+
         ];
     }
 

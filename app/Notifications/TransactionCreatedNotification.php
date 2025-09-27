@@ -41,7 +41,7 @@ class TransactionCreatedNotification extends Notification
         $this->first_message .= "You’ll be notified once an invoice is generated or if further action is required.<br>";
 
         $this->closing_message = 'Regards, The Support Team ' . env('APP_NAME');
-        $this->action_button = [['View Transaction', url(route('client.transactions.create'))]];
+        $this->action_button = [['View Transaction', url(route('client.transactions.index'). '?trans_id='. $transaction->trans_id)]];
     }
 
     public function via($notifiable)

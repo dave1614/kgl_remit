@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\InvoiceController as AdminInvoiceController;
 use App\Http\Controllers\Admin\KycController as AdminKycController;
 use App\Http\Controllers\Admin\RateController as AdminRateController;
+use App\Http\Controllers\Admin\ReceiptController as AdminReceiptController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TransactionController as AdminTransactionController;
@@ -180,8 +181,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
 
     // Transactions
     Route::get('/transactions', [AdminTransactionController::class, 'index'])->name('transactions.index');
-
     Route::post('/transactions/all', [AdminTransactionController::class, 'viewAllTransactions'])->name('transactions.all');
+
+    Route::get('/transactions/{transaction}', [AdminTransactionController::class, 'show'])->name('transactions.show');
 
     Route::get('transactions/{transaction}/approval-data', [AdminTransactionController::class, 'approvalData'])
         ->name('transactions.approval-data');
@@ -196,9 +198,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
 
 
 
-    // Invoices & Proofs
+    // Invoices & Receipts
     Route::get('/invoices', [AdminInvoiceController::class, 'index'])->name('invoices.index');
+    Route::post('/all_invoices', [AdminInvoiceController::class, 'viewAllInvoices'])->name('invoices.all');
     Route::get('/invoices/{invoice}', [AdminInvoiceController::class, 'show'])->name('invoices.show');
+
+    Route::get('/receipts', [AdminReceiptController::class, 'index'])->name('receipts.index');
+    Route::post('/all_receipts', [AdminReceiptController::class, 'viewAllReceipts'])->name('receipts.all');
+
 
     // Exchange Rates
 
@@ -286,8 +293,19 @@ Route::prefix('client')->name('client.')->middleware(['auth', 'verified', 'ensur
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
     Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
 
+
+
+    Route::post('/transactions/all', [TransactionController::class, 'viewAllTransactions'])->name('transactions.all');
+
     // Invoices & Receipts
     Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+
+    Route::post('/all_invoices', [InvoiceController::class, 'viewAllInvoices'])->name('invoices.all');
+
+    Route::get('/receipts', [ReceiptController::class, 'index'])->name('receipts.index');
+    Route::post('/all_receipts', [ReceiptController::class, 'viewAllReceipts'])->name('receipts.all');
+
+
     Route::get('/transactions/{transaction}/invoice', [TransactionController::class, 'showInvoice'])->name('transactions.invoice');
 
     Route::get('/transactions/{transaction}/receipt', [TransactionController::class, 'showReceipt'])->name('transactions.receipt');

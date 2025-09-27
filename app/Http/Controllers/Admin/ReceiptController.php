@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Client;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
@@ -9,9 +9,6 @@ use Inertia\Inertia;
 
 class ReceiptController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
 
@@ -23,19 +20,23 @@ class ReceiptController extends Controller
         $props['receipt_number'] = $receipt_number;
         $props['status'] = $status;
         // Return Inertia page
-        return Inertia::render('Transaction/Receipts', $props);
+        return Inertia::render('Admin/Transactions/Receipts', $props);
     }
 
     public function viewAllReceipts(Request $request)
     {
         $length = $request->query('length', 10);
 
-        $transactions = Transaction::with('user', 'fromCurrency', 'toCurrency')
+        $transactions = Transaction::with('user', 'business', 'fromCurrency', 'toCurrency')
             ->addSelect('transactions.*')
             // only transactions that have invoice numbers
             ->whereNotNull('receipt_number')
             ->filterStatus($request->query('status'))
             ->filterReceiptNumber($request->query('receipt_number'))
+            ->filterBusinessName($request->query('business_name'))
+            ->filterUserName($request->query('user_name'))
+            ->filterEmail($request->query('email'))
+            ->filterFullName($request->query('full_name'))
             ->filterFinalAmountToPay($request->query('amount'))
             ->filterTransId($request->query('trans_id'))
             ->filterReceiptGeneratedDate($request->query('date'))
@@ -47,51 +48,4 @@ class ReceiptController extends Controller
         return $transactions;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

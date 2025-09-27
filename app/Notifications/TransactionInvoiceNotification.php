@@ -53,7 +53,8 @@ class TransactionInvoiceNotification extends Notification
 
         $this->closing_message = 'Regards, The Support Team ' . env('APP_NAME');
         $this->action_button   = [
-            ['View Invoice', url(route('client.transactions.invoice', $transaction->id))]
+            ['View Invoice', url(route('client.transactions.invoice', $transaction->id))],
+            ['Track Transaction', url(route('client.transactions.index') . '?trans_id=' . $transaction->trans_id)]
         ];
     }
 
@@ -71,6 +72,18 @@ class TransactionInvoiceNotification extends Notification
             ->subject($this->subject)
             ->line(new HtmlString($this->first_message))
             ->action($this->action_button[0][0], $this->action_button[0][1])
+            ->line(new HtmlString(
+                '<a href="' . $this->action_button[1][1] . '" ' .
+                    'style="
+                display:inline-block;
+                background-color:#1D4ED8;
+                color:#ffffff;
+                padding:10px 20px;
+                text-decoration:none;
+                border-radius:4px;
+                margin-top:8px;
+            ">' . $this->action_button[1][0] . '</a>'
+            ))
             ->salutation($this->closing_message);
     }
 
@@ -83,7 +96,7 @@ class TransactionInvoiceNotification extends Notification
             'subject'        => $this->subject,
             'first_message'  => $this->first_message,
             'action_button'  => $this->action_button,
-            'closing_message'=> $this->closing_message,
+            'closing_message' => $this->closing_message,
         ];
     }
 }

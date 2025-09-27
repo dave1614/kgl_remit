@@ -68,6 +68,22 @@ class Transaction extends Model
         });
     }
 
+    public function scopeFilterReceiptNumber($query, $receipt_number)
+    {
+        $query->when($receipt_number, function ($q) use ($receipt_number) {
+            $q->where('receipt_number', 'like', "%$receipt_number%");
+        });
+    }
+
+    public function scopeFilterInvoiceNumber($query, $invoice_number)
+    {
+        $query->when($invoice_number, function ($q) use ($invoice_number) {
+            $q->where('invoice_number', 'like', "%$invoice_number%");
+        });
+    }
+
+
+
     public function scopeFilterAmountToReceive($query, $value)
     {
         return $query->when($value, fn($q) => $q->where('amount_to_receive', 'like', "%$value%"));
@@ -118,14 +134,43 @@ class Transaction extends Model
     public function scopeFilterDate($query, $date)
     {
         if (!is_null($date)) {
-            return $query->whereDate('updated_at', date('Y-m-d', strtotime($date)));
+            return $query->whereDate('created_at', date('Y-m-d', strtotime($date)));
         }
     }
+
 
     public function scopeFilterBetweenDates($query, $start_date, $end_date)
     {
         if (!is_null($start_date) && !is_null($end_date)) {
-            return $query->whereBetween('updated_at', [$start_date, $end_date]);
+            return $query->whereBetween('created_at', [$start_date, $end_date]);
+        }
+    }
+
+    public function scopeFilterInvoiceGeneratedDate($query, $date)
+    {
+        if (!is_null($date)) {
+            return $query->whereDate('invoice_generated_at', date('Y-m-d', strtotime($date)));
+        }
+    }
+
+    public function scopeFilterBetweenInvoiceGeneratedDates($query, $start_date, $end_date)
+    {
+        if (!is_null($start_date) && !is_null($end_date)) {
+            return $query->whereBetween('invoice_generated_at', [$start_date, $end_date]);
+        }
+    }
+
+    public function scopeFilterReceiptGeneratedDate($query, $date)
+    {
+        if (!is_null($date)) {
+            return $query->whereDate('receipt_generated_at', date('Y-m-d', strtotime($date)));
+        }
+    }
+
+    public function scopeFilterBetweenReceiptGeneratedDates($query, $start_date, $end_date)
+    {
+        if (!is_null($start_date) && !is_null($end_date)) {
+            return $query->whereBetween('receipt_generated_at', [$start_date, $end_date]);
         }
     }
 

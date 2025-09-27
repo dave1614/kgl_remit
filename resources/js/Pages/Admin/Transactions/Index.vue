@@ -157,29 +157,56 @@ const currentStepIndex = computed(() => {
     return statusSteps.findIndex(s => s.key === selectedTransaction.value.status)
 })
 
-const openActionModal = async (tx) => {
-    selectedTransaction.value = tx
-    showActionModal.value = true
-    // const { data } = await axios.get(route('admin.transactions.approval-data', tx.id))
-
-    const { response } = await useAxios(route('admin.transactions.approval-data', tx.id), 'Fetching details...', {}, 'get');
-
-    // console.log(response.value)
-    const data = response.value.data
-    const defaults = data.defaults
-
-    approvalForm.final_rate = data.rate || ''
-    approvalForm.final_amount_to_pay = (parseFloat(tx.amount_to_receive) * parseFloat(data.rate || 0)).toFixed(2)
-    approvalForm.invoice_expiry_minutes = defaults.invoice_expiry_minutes
-    approvalForm.bank_name = defaults.bank_name
-    approvalForm.account_number = defaults.account_number
-    approvalForm.account_name = defaults.account_name
+const fetchTransaction = async (id) => {
+    const { response, error } = await useAxios(route('admin.transactions.show', id), 'Loading transaction details...', {}, 'get')
+    if (response?.value?.data) {
+        console.log(response.value.data)
+        return response.value.data
+    }
+    if (error?.value) {
+        mainStore.toast = 'Failed to load transaction details'
+        return null
+    }
 }
 
-const openDetailsModal = (tx) => {
-    selectedTransaction.value = tx
+const openDetailsModal = async (tx) => {
+    const freshTx = await fetchTransaction(tx.id)
+    if (!freshTx) return
+
+    selectedTransaction.value = freshTx
+
+    // update the row in table without reload
+    const idx = transactions.value.data.findIndex(t => t.id === tx.id)
+    if (idx !== -1) transactions.value.data[idx] = freshTx
+
     showDetailsModal.value = true
 }
+
+const openActionModal = async (tx) => {
+    const freshTx = await fetchTransaction(tx.id)
+    if (!freshTx) return
+
+    selectedTransaction.value = freshTx
+
+    const idx = transactions.value.data.findIndex(t => t.id === tx.id)
+    if (idx !== -1) transactions.value.data[idx] = freshTx
+
+    // now also pull approval data like before:
+    const { response } = await useAxios(route('admin.transactions.approval-data', tx.id), 'Fetching details...', {}, 'get')
+    if (response?.value?.data) {
+        const data = response.value.data
+        const defaults = data.defaults
+        approvalForm.final_rate = data.rate || ''
+        approvalForm.final_amount_to_pay = (parseFloat(freshTx.amount_to_receive) * parseFloat(data.rate || 0)).toFixed(2)
+        approvalForm.invoice_expiry_minutes = defaults.invoice_expiry_minutes
+        approvalForm.bank_name = defaults.bank_name
+        approvalForm.account_number = defaults.account_number
+        approvalForm.account_name = defaults.account_name
+    }
+
+    showActionModal.value = true
+}
+
 
 const approveTransaction = async () => {
 
@@ -534,7 +561,7 @@ onMounted(() => {
                         <h3 class="text-sm font-semibold">Final Amount To Pay</h3>
                         <p>{{ selectedTransaction?.to_currency?.symbol }}{{
                             mainStore.addCommas(parseFloat(selectedTransaction?.final_amount_to_pay).toFixed(2))
-                        }}</p>
+                            }}</p>
                     </div>
 
 
@@ -561,6 +588,13 @@ onMounted(() => {
                     <div v-if="selectedTransaction?.account_name != null">
                         <h3 class="text-sm font-semibold">Account Name</h3>
                         <p>{{ selectedTransaction?.account_name }}</p>
+                    </div>
+
+
+
+                    <div v-if="selectedTransaction?.invoice_generated_at != null">
+                        <h3 class="text-sm font-semibold">Invoice Generated At</h3>
+                        <p>{{ mainStore.formatDate(selectedTransaction?.invoice_generated_at) }}</p>
                     </div>
 
                     <div v-if="selectedTransaction?.invoice_expires_at != null">
@@ -625,7 +659,8 @@ onMounted(() => {
                 <div class="space-y-6">
                     <!-- Approve -->
                     <!-- Inside CardBoxModal for Actions -->
-                    <form @submit.prevent="approveTransaction" v-if="allowedActions.canApprove" class="border rounded p-4 bg-green-50 space-y-3">
+                    <form @submit.prevent="approveTransaction" v-if="allowedActions.canApprove"
+                        class="border rounded p-4 bg-green-50 space-y-3">
                         <h5 class="font-semibold mb-2">Approve & Send Invoice</h5>
 
                         <!-- <FormField label="Official Rate">
@@ -659,8 +694,7 @@ onMounted(() => {
                                 type="text" />
                         </FormField>
 
-                        <BaseButton color="success" label="Approve & Send Invoice" class="w-full"
-                            type="submit" />
+                        <BaseButton color="success" label="Approve & Send Invoice" class="w-full" type="submit" />
                     </form>
 
                     <!-- View Payment Proof -->

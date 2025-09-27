@@ -3,17 +3,50 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class InvoiceController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+
+        $trans_id = $request->query('trans_id');
+        $invoice_number = $request->query('invoice_number');
+        $status = $request->query('status');
+
+        $props['trans_id'] = $trans_id;
+        $props['invoice_number'] = $invoice_number;
+        $props['status'] = $status;
+        // Return Inertia page
+        return Inertia::render('Transaction/Invoices', $props);
     }
+
+    public function viewAllInvoices(Request $request)
+    {
+        $length = $request->query('length', 10);
+
+        $transactions = Transaction::with('user', 'fromCurrency', 'toCurrency')
+            ->addSelect('transactions.*')
+            // only transactions that have invoice numbers
+            ->whereNotNull('invoice_number')
+            ->filterStatus($request->query('status'))
+            ->filterInvoiceNumber($request->query('invoice_number'))
+            ->filterFinalAmountToPay($request->query('amount'))
+            ->filterTransId($request->query('trans_id'))
+            ->filterInvoiceGeneratedDate($request->query('date'))
+            ->filterBetweenInvoiceGeneratedDates($request->query('start_date'), $request->query('end_date'))
+            ->orderBy('id', 'DESC')
+            ->paginate($length)
+            ->withQueryString();
+
+        return $transactions;
+    }
+
 
     /**
      * Show the form for creating a new resource.

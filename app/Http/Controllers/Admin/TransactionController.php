@@ -149,6 +149,7 @@ class TransactionController extends Controller
             $transaction->account_name = $validated['account_name'];
             $transaction->status = 'pending_payment';
             $transaction->invoice_number = $invoiceNumber;
+            $transaction->invoice_generated_at = now();
             $transaction->invoice_expires_at = now()->addMinutes((float) $validated['invoice_expiry_minutes']);
             $transaction->save();
 
@@ -245,10 +246,12 @@ class TransactionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Transaction $transaction)
     {
-        //
+        $transaction->load(['user', 'business', 'fromCurrency', 'toCurrency']);
+        return response()->json($transaction);
     }
+
 
     /**
      * Show the form for editing the specified resource.

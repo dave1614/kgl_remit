@@ -11,8 +11,10 @@ use App\Models\Transaction;
 use App\Notifications\AdminTransactionCreatedNotification;
 use App\Notifications\AdminTransactionPaymentProofSentNotification;
 use App\Notifications\TransactionCreatedNotification;
+use App\Notifications\UserPaymentProofUploadedNotification;
 use App\Notifications\UserTransactionRejectedNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
@@ -29,13 +31,52 @@ class TransactionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index() {}
+    public function index(Request $request)
+    {
+
+        $trans_id = $request->query('trans_id');
+        $status = $request->query('status');
+
+        $props['trans_id'] = $trans_id;
+        $props['status'] = $status;
+        // Return Inertia page
+        return Inertia::render('Transaction/Index', $props);
+    }
+
+    public function viewAllTransactions(Request $request)
+    {
+        $length = $request->query('length', 10);
+
+        // return $request->query('status');
+        $user = Auth::user();
+
+
+        $transactions = Transaction::with('user', 'business', 'fromCurrency', 'toCurrency')
+            ->addSelect('transactions.*')
+            ->where('user_id', $user->id)
+            ->filterStatus($request->query('status'))
+
+            ->filterTransId($request->query('trans_id'))
+            ->filterAmountToReceive($request->query('amount_to_receive'))
+            ->filterAmountToPay($request->query('amount_to_pay'))
+            ->filterFinalAmountToPay($request->query('final_amount_to_pay'))
+            ->filterFromCurrency($request->query('from_currency'))
+            ->filterToCurrency($request->query('to_currency'))
+            ->filterDate($request->query('date'))
+            ->filterBetweenDates($request->query('start_date'), $request->query('end_date'))
+            ->orderBy('id', 'DESC')
+            ->paginate($length)
+            ->withQueryString();
+
+        return $transactions;
+    }
+
 
 
     public function showReceipt(Request $request, Transaction $transaction)
     {
         $user = $request->user();
-        if($user->is_admin == 0){
+        if ($user->is_admin == 0) {
             abort_unless($transaction->user_id === auth()->id(), 403);
         }
 
@@ -55,7 +96,7 @@ class TransactionController extends Controller
     {
 
         $user = $request->user();
-        if($user->is_admin == 0){
+        if ($user->is_admin == 0) {
             abort_unless($transaction->user_id === auth()->id(), 403);
         }
 
@@ -101,6 +142,8 @@ class TransactionController extends Controller
 
 
         Notification::send($admin_user, new AdminTransactionPaymentProofSentNotification($transaction, $user, $business));
+
+        $user->notify(new UserPaymentProofUploadedNotification($transaction, $user, $business));
 
         $response['success'] = true;
         $response['message'] = 'Payment proof uploaded successfully.';
@@ -178,10 +221,12 @@ class TransactionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Transaction $transaction)
     {
-        //
+        $transaction->load(['fromCurrency', 'toCurrency']); // eager load
+        return response()->json($transaction);
     }
+
 
     /**
      * Show the form for editing the specified resource.
