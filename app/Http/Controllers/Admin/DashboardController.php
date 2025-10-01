@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BusinessRegistration;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,14 +17,27 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $props = [];
-        $user = Auth::user();
-        $user = User::find($user->id);
-        $user_id = $user->id;
+        // Stats
+        $stats = [
+            'users' => User::count(),
+            'businesses' => BusinessRegistration::count(),
+            'transactions' => Transaction::count(),
+            'pending_transactions' => Transaction::where('status', 'pending_request')->count(),
+            'invoices' => Transaction::whereNotNull('invoice_number')->count(),
+        ];
 
+        // Recent items
+        $recentUsers = User::latest()->take(5)->get();
+        $recentTransactions = Transaction::with('user', 'fromCurrency', 'toCurrency')
+            ->latest()->take(5)->get();
+        $recentInvoices = Transaction::whereNotNull('invoice_number')->with('user')->latest()->take(5)->get();
 
-        return Inertia::render('Admin/Dashboard', $props);
-
+        return Inertia::render('Admin/Dashboard', [
+            'stats' => $stats,
+            'recent_users' => $recentUsers,
+            'recent_transactions' => $recentTransactions,
+            'recent_invoices' => $recentInvoices,
+        ]);
     }
 
     /**

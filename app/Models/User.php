@@ -70,7 +70,80 @@ class User extends Authenticatable implements MustVerifyEmail
     //     return 'slug';
     // }
 
+    public function scopeFilterStatus($query, $status)
+    {
+        return $query->when($status, function ($query, $status) {
+            if($status == 'all'){
 
+            }else if($status == "verified"){
+                $query->whereNotNull('email_verified_at');
+            }else if($status == "unverified"){
+                $query->whereNull('email_verified_at');
+            }else if($status == "business_registered"){
+                $query->where('business_registered', 1);
+            }else if($status == "business_registration_pending"){
+                $query->where('business_registered', 0);
+            }
+
+
+        });
+    }
+
+    public function scopeFilterUserName($query, $user_name)
+    {
+        $query->when($user_name, function ($query, $user_name) {
+            $query->where("user_name", "like", "%$user_name%");
+        });
+    }
+
+    public function scopeFilterFullName($query, $full_name)
+    {
+        $query->when($full_name, function ($query, $full_name) {
+            $query->where("name", "like", "%$full_name%");
+        });
+    }
+
+    public function scopeFilterPhone($query, $phone)
+    {
+        $query->when($phone, function ($query, $phone) {
+            $query->where("phone", "like", "%$phone%");
+        });
+    }
+
+    public function scopeFilterEmail($query, $email)
+    {
+        $query->when($email, function ($query, $email) {
+            $query->where("email", "like", "%$email%");
+        });
+    }
+
+    public function scopeFilterDate($query, $date)
+    {
+        if (!is_null($date)) {
+            return $query->whereDate('created_at', date('Y-m-d', strtotime($date)));
+        }
+    }
+
+    public function scopeFilterEmailVerifiedDate($query, $date)
+    {
+        if (!is_null($date)) {
+            return $query->whereDate('email_verified_at', date('Y-m-d', strtotime($date)));
+        }
+    }
+
+    public function scopeFilterBusinessRegisteredDate($query, $date)
+    {
+        if (!is_null($date)) {
+            return $query->whereDate('business_registered_at', date('Y-m-d', strtotime($date)));
+        }
+    }
+
+    public function scopeFilterBetweenDates($query, $start_date, $end_date)
+    {
+        if (!is_null($start_date) && !is_null($end_date)) {
+            return $query->whereBetween('created_at', [$start_date, $end_date]);
+        }
+    }
 
     public function countryDetails(): Attribute
     {
@@ -87,6 +160,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function country()
     {
         return $this->belongsTo(Country::class);
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
     }
 
     protected function phoneCode(): Attribute

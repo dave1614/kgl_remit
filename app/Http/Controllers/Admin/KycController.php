@@ -22,10 +22,13 @@ class KycController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        $status = $request->has('status') ? $request->query('status') : 'all';
+        $user_name = $request->has('user_name') ? $request->query('user_name') : NULL;
 
         return Inertia::render('Admin/Kyc/Index', [
             'user' => $user,
-            'status' => 'pending'
+            'status' => $status,
+            'user_name' => $user_name,
         ]);
     }
 
@@ -77,6 +80,7 @@ class KycController extends Controller
 
         // Optionally mark user's business_registered flag
         $business->user->business_registered = 1;
+        $business->user->business_registered_at = now();
         $business->user->save();
 
         // Send notification to the user

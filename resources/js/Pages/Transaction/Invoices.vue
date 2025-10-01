@@ -19,6 +19,7 @@ const mainStore = useMainStore()
 // filters
 const props = defineProps({
     status: String,
+    invoice_number: String,
 })
 
 const statusOptions = ref({
@@ -38,7 +39,7 @@ const filters = ref({
     length: 10,
     status: props.status == null ? 'all' : props.status,
     amount: '',
-    invoice_number: '',
+    invoice_number: props.invoice_number == null ? 'all' : props.invoice_number,
     trans_id: '',
 
     date: '',

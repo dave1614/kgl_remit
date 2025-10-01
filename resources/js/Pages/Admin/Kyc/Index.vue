@@ -21,6 +21,9 @@ const props = defineProps({
     auth: Object,
     status: {
         default: 'all'
+    },
+    user_name: {
+        default: null
     }
 })
 
@@ -41,7 +44,7 @@ const businesses_props = ref({
     page: 1,
     length: 10,
     status: props.status,
-    user_name: null,
+    user_name: props.user_name,
     full_name: null,
     business_name: null,
     email: null,

@@ -164,9 +164,17 @@ class TransactionController extends Controller
         $currencies = Currency::orderBy('code')->get();
         $exchangeRates = ExchangeRate::select('from_currency_id', 'to_currency_id', 'rate')->get();
         // return $currencies;
+        // grab defaults from query string
+        $defaults = [
+            'from_currency_id' => $request->query('from_currency_id'),
+            'to_currency_id'   => $request->query('to_currency_id'),
+            'amount'           => $request->query('amount'), // optional
+        ];
+
         return Inertia::render('Transaction/Create', [
-            'currencies' => $currencies,
-            'exchangeRates' => $exchangeRates
+            'currencies'    => $currencies,
+            'exchangeRates' => $exchangeRates,
+            'defaults'      => $defaults, // send to vue
         ]);
     }
 

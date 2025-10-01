@@ -41,15 +41,20 @@ export default [
         label: "Dashboard",
     },
     {
+        route: "admin.users.index",
+        icon: mdiAccountGroup,
+        label: "All Users",
+    },
+    {
         label: "Businesses",
         icon: mdiDomain,
         menu: [
             {
-                route: "admin.users.index",
+                route: "admin.kyc.index",
                 label: "All Businesses",
             },
             {
-                route: "admin.kyc.index",
+                href: "/admin/kyc?status=pending",
                 label: "Pending KYC Verification",
             },
         ],

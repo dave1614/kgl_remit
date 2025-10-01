@@ -14,14 +14,15 @@ import { mdiSwapHorizontal, mdiCurrencyUsd } from '@mdi/js'
 
 const props = defineProps({
     currencies: Array,
-    exchangeRates: Array
+    exchangeRates: Array,
+    defaults: Object,
 })
 
 const mainStore = useMainStore()
 
-const fromCurrencyId = ref('')
-const toCurrencyId = ref('')
-const amount = ref('')
+const fromCurrencyId = ref(props.defaults?.from_currency_id || '')
+const toCurrencyId = ref(props.defaults?.to_currency_id || '')
+const amount = ref(props.defaults?.amount || '')
 const rate = ref(null)
 const convertedAmount = ref(null)
 const fromCurrency = ref(null)

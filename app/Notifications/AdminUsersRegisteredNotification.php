@@ -49,7 +49,7 @@ class AdminUsersRegisteredNotification extends Notification
 
 
         $this->closing_message = 'Thank you for using ' . env('APP_NAME') . '!';
-        $this->action_button = [['Manage Users', url(route('admin.users.index'))]];
+        $this->action_button = [['View User', url(route('admin.users.index') . '?user_name='. $this->user->user_name)]];
     }
 
     public function via($notifiable)

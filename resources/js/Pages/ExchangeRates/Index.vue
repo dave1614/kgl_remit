@@ -77,9 +77,16 @@ const goToPage = (page) => {
 
                         <div class="mt-4">
                             <button
-                                class="w-full bg-indigo-600 text-white py-2 px-4 rounded-xl hover:bg-indigo-700 transition">
+                                class="w-full bg-indigo-600 text-white py-2 px-4 rounded-xl hover:bg-indigo-700 transition"
+                                @click="router.visit(
+                                    route('client.transactions.create', {
+                                        from_currency_id: rate.from_currency_id,
+                                        to_currency_id: rate.to_currency_id
+                                    })
+                                )">
                                 Transfer Now
                             </button>
+
                         </div>
                     </div>
                 </div>

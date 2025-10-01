@@ -163,6 +163,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
 
     // Users
     Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::post('/users/all', [AdminUserController::class, 'viewAll'])->name('users.all');
     Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
     Route::put('/users/{user}/status', [AdminUserController::class, 'updateStatus'])->name('users.updateStatus');
 

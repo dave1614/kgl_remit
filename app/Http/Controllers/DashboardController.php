@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Session;
 use App\Functions\UsefulFunctions;
 use App\Models\EarningToWalletHistory;
 use App\Models\EasySavings;
+use App\Models\ExchangeRate;
 use App\Models\SavingsDuration;
 use App\Models\SavingsFrequency;
 use Carbon\Carbon;
@@ -28,30 +29,38 @@ class DashboardController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-        $props = [];
-        $user = Auth::user();
-        $user = User::find($user->id);
-        $user_id = $user->id;
+        $user = auth()->user();
 
+        return Inertia::render('Client/Dashboard', [
+            'dashboard_stats' => [
 
-        return Inertia::render('Client/Dashboard', $props);
-
-
-
+                'transactions' => $user->transactions()->count(),
+                'invoices' => $user->transactions()->whereNotNull('invoice_number')->count(),
+                'rates' => ExchangeRate::count(),
+                'wallets' => $user->wallet_balance,
+            ],
+            'user' => $user,
+            'business' =>  $user->businessRegistrations()->first(),
+            'recent_transactions' => $user->transactions()->with('toCurrency', 'fromCurrency')->latest()->take(10)->get(),
+            'recent_invoices' => $user->transactions()->with('toCurrency', 'fromCurrency')->whereNotNull('invoice_number')->latest()->take(10)->get(),
+        ]);
     }
 
-    public function showReferralLink(Request $request){
+
+    public function showReferralLink(Request $request)
+    {
         $user = Auth::user();
         $props['user'] = $user;
-        return Inertia::render('ReferralLink',$props);
+        return Inertia::render('ReferralLink', $props);
     }
 
-    public function aboutUs(Request $request){
+    public function aboutUs(Request $request)
+    {
         $user = Auth::user();
         $props['user'] = $user;
-        return Inertia::render('AboutUs',$props);
+        return Inertia::render('AboutUs', $props);
     }
 
 

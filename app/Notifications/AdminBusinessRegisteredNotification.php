@@ -47,7 +47,7 @@ class AdminBusinessRegisteredNotification extends Notification
 
 
         $this->closing_message = 'Thank you for using ' . env('APP_NAME') . '!';
-        $this->action_button = [['Review Business', url(route('admin.kyc.index'))]];
+        $this->action_button = [['Review Business', url(route('admin.kyc.index'). '?user_name=' . $user->user_name)]];
     }
 
     public function via($notifiable)

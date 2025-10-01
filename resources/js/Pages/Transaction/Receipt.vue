@@ -76,7 +76,7 @@ const statusColor = computed(() => {
           <td class="p-2">Payment received for transaction ({{ props.transaction.from_currency?.code }} → {{ props.transaction.to_currency?.code }})</td>
           <td class="p-2 font-semibold">
             {{ props.transaction.to_currency?.code }}
-            {{ mainStore.addCommas(parseFloat(props.transaction.amount_to_pay).toFixed(2)) }}
+            {{ mainStore.addCommas(parseFloat(props.transaction.final_amount_to_pay).toFixed(2)) }}
           </td>
         </tr>
       </tbody>

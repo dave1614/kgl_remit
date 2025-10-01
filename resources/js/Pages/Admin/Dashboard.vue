@@ -1,224 +1,97 @@
 <script setup>
-import { useForm, usePage, Head, router } from '@inertiajs/vue3';
-import { computed, ref, onMounted } from "vue";
-import { useMainStore } from "@/Stores/main";
+import { computed } from "vue";
+import { Head, usePage } from "@inertiajs/vue3";
 import {
-    mdiAccountMultiple,
-    mdiCartOutline,
-    mdiChartTimelineVariant,
-    mdiMonitorCellphone,
-    mdiReload,
-    mdiGithub,
-    mdiChartPie,
-    mdiWallet,
-    mdiCash,
-    mdiCashCheck,
-    mdiTable,
-    mdiOpenInNew,
-    mdiFacebook,
-    mdiTwitter,
-    mdiWhatsapp,
-    mdiAccount,
-    mdiCashPlus,
-    mdiCellphoneWireless,
-    mdiCellphoneDock,
-    mdiTelevisionClassic,
-    mdiLightningBoltOutline,
-    mdiRouterWireless,
-    mdiSchoolOutline,
-    mdiWalletBifold,
     mdiAccountGroup,
-    mdiHumanGreetingProximity,
-    mdiViewDashboard
+    mdiDomain,
+    mdiCashMultiple,
+    mdiReceiptText,
+    mdiAlertCircle,
 } from "@mdi/js";
-import * as chartConfig from "@/Components/Charts/chart.config.js";
-import LineChart from "@/Components/Charts/LineChart.vue";
-import SectionMain from "@/Components/SectionMain.vue";
-import CardBoxWidget from "@/Components/CardBoxWidget.vue";
-import CardBox from "@/Components/CardBox.vue";
-import TableSampleClients from "@/Components/TableSampleClients.vue";
-import NotificationBar from "@/Components/NotificationBar.vue";
-import BaseButton from "@/Components/BaseButton.vue";
-import CardBoxTransaction from "@/Components/CardBoxTransaction.vue";
-import CardBoxClient from "@/Components/CardBoxClient.vue";
+
 import LayoutAuthenticated from "@/Layouts/LayoutAuthenticated.vue";
+import SectionMain from "@/Components/SectionMain.vue";
 import SectionTitleLineWithButton from "@/Components/SectionTitleLineWithButton.vue";
-import SectionBannerStarOnGitHub from "@/Components/SectionBannerStarOnGitHub.vue";
-import UserCard from "@/Components/UserCard.vue";
-import UserAvatarCurrentUser from "@/Components/UserAvatarCurrentUser.vue";
-import MultipurposeButton from '@/Components/MultipurposeButton.vue';
-import BaseButtons from '@/Components/BaseButtons.vue';
-import FormField from '@/Components/FormField.vue';
-import FormControl from '@/Components/FormControl.vue';
-import UserAvatar from '@/Components/UserAvatar.vue';
-import BaseIcon from '@/Components/BaseIcon.vue';
+import CardBoxWidget from "@/Components/CardBoxWidget.vue";
+import NotificationBar from "@/Components/NotificationBar.vue";
+import CardBox from "@/Components/CardBox.vue";
 
-
-
-const props = defineProps({
-
-
-});
-
-const page = usePage()
-const chartData = ref(null);
-
-const fillChartData = () => {
-    chartData.value = chartConfig.sampleChartData();
-};
-
-const mainStore = useMainStore();
-onMounted(() => {
-    fillChartData();
-    // mainStore.changeIsAdminVal(true)
-});
-
-const i = 1;
-
-
-const clientBarItems = computed(() => mainStore.clients.slice(0, 4));
-
-const transactionBarItems = computed(() => mainStore.history);
-
-
-const hasTermsAndPrivacyPolicyFeature = computed(() => page.props.jetstream?.hasTermsAndPrivacyPolicyFeature)
-const user = ref(page.props.auth.user);
-
-
+const page = usePage();
+const stats = computed(() => page.props.stats);
+const recentUsers = computed(() => page.props.recent_users);
+const recentTransactions = computed(() => page.props.recent_transactions);
+const recentInvoices = computed(() => page.props.recent_invoices);
 </script>
-
 
 <template>
     <LayoutAuthenticated>
 
-        <Head title="Dashboard" />
+        <Head title="Admin Dashboard" />
+
         <SectionMain>
-            <SectionTitleLineWithButton :icon="mdiViewDashboard" title="Dashboard" main>
-                <!-- <BaseButton
-          href="https://github.com/justboil/admin-one-vue-tailwind"
-          target="_blank"
-          :icon="mdiGithub"
-          label="Star on GitHub"
-          color="contrast"
-          rounded-full
-          small
-        /> -->
-            </SectionTitleLineWithButton>
+            <!-- Top Overview -->
+            <SectionTitleLineWithButton :icon="mdiAlertCircle" title="System Overview" main />
 
-
-
-
-            <div class="grid grid-cols-1 gap-6 lg:grid-cols-4 mb-6">
-
-
-                <!-- <CardBoxWidget color="text-red-500" :icon="mdiCashCheck" :number="parseFloat(user.total_withdrawan)" prefix="₦"
-          label="Withdrawn" /> -->
-
-
-
-                <!-- <CardBoxWidget color="text-primary" :icon="mdiTable" :number="total_spent_on_vtu_today" prefix="₦"
-          label="Total Spent On Vtu Today" /> -->
-
-                <!-- <CardBoxWidget color="text-slate-500" :icon="mdiCashPlus" :number="total_credited_today" prefix="₦"
-          label="Total Credited Today" /> -->
-
-                <!-- <CardBoxWidget color="text-emerald-500" :icon="mdiCashPlus" :number="totalEarnings" prefix="₦"
-                    label="Total commission earned" />
-
-                <CardBoxWidget color="text-red-500" :icon="mdiCashPlus" :number="progressiveCommission" prefix="₦"
-                    label="Weekly Progressive Commission" />
-
-                <CardBoxWidget color="text-orange-500" :icon="mdiAccountGroup" :number="total_referrals"
-                    label="Eligibility Referrals" /> -->
-                <!-- <CardBoxWidget
-          trend="Overflow"
-          trend-type="alert"
-          color="text-red-500"
-          :icon="mdiChartTimelineVariant"
-          :number="total_amount_wthdrawn"
-          suffix="%"
-          label="Withdrawn"
-        /> -->
-
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <CardBoxWidget color="text-indigo-500" :icon="mdiAccountGroup" :number="stats.users"
+                    label="Total Users" />
+                <CardBoxWidget color="text-emerald-500" :icon="mdiDomain" :number="stats.businesses"
+                    label="Businesses" />
+                <CardBoxWidget color="text-blue-500" :icon="mdiCashMultiple" :number="stats.transactions"
+                    label="Transactions" />
+                <CardBoxWidget color="text-red-500" :icon="mdiReceiptText" :number="stats.invoices" label="Invoices" />
             </div>
 
+            <!-- Quick Notification -->
+            <NotificationBar color="warning" :icon="mdiAlertCircle">
+                <b>Admin Notice:</b> You have
+                {{ stats.pending_transactions }} pending transaction approvals.
+            </NotificationBar>
 
+            <!-- Recent Activity -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <!-- Users -->
+                <CardBox>
+                    <h2 class="text-lg font-semibold mb-3">Recent Users</h2>
+                    <ul>
+                        <li v-for="user in recentUsers" :key="user.id" class="border-b py-2 text-sm">
+                            {{ user.name }} — {{ user.email }}
+                        </li>
+                    </ul>
+                    <a v-if="recentUsers.length" :href="route('admin.users.index')"
+                        class="block mt-3 px-4 py-2 text-white text-center rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-indigo-500 hover:to-purple-500">
+                        View all users →
+                    </a>
+                </CardBox>
 
+                <!-- Transactions -->
+                <CardBox>
+                    <h2 class="text-lg font-semibold mb-3">Recent Transactions</h2>
+                    <ul>
+                        <li v-for="tx in recentTransactions" :key="tx.id" class="border-b py-2 text-sm">
+                            {{ tx.trans_id }} — {{ tx.status }}
+                        </li>
+                    </ul>
+                    <a v-if="recentTransactions.length" :href="route('admin.transactions.index')"
+                        class="block mt-3 px-4 py-2 text-white text-center rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-indigo-500 hover:to-blue-500">
+                        View all transactions →
+                    </a>
+                </CardBox>
 
-
-            <!-- <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-1">
-        <CardBox class="">
-          <UserAvatarCurrentUser class="h-24 w-24 mx-auto" />
-
-          <div class="mt-6 text-center">
-            <p class="text-xs text-gray-400 font-semibold">{{ user.email }}</p>
-            <p class="text-lg text-gray-500 font-bold mt-3" v-html="`${user.phone_code}${user.phone}`"></p>
-            <p class="text-2xl dark:text-white text-black font-bold mt-3" v-html="`${user.name}`"></p>
-          </div>
-          <div class="flex justify-center mt-6 text-center">
-            <MultipurposeButton :href="route('edit_profile')" label="Edit Profile" />
-          </div>
-
-        </CardBox>
-      </div> -->
-
-
-            <!-- <SectionBannerStarOnGitHub class="mt-6 mb-6" /> -->
-
-            <!-- <SectionTitleLineWithButton :icon="mdiChartPie" title="Trends overview">
-        <BaseButton
-          :icon="mdiReload"
-          color="whiteDark"
-          @click="fillChartData"
-        />
-      </SectionTitleLineWithButton>
-
-      <CardBox class="mb-6">
-        <div v-if="chartData">
-          <line-chart :data="chartData" class="h-96" />
-        </div>
-      </CardBox> -->
-
-            <!-- <SectionTitleLineWithButton :icon="mdiAccountMultiple" title="Team Perfomance" />
-
-      <NotificationBar color="info" :icon="mdiMonitorCellphone">
-        <b>Top 10 Mlm Earners</b>
-      </NotificationBar> -->
-
-            <!-- <CardBox has-table>
-        <table>
-          <thead>
-            <tr>
-
-              <th>#</th> -->
-            <!-- <th /> -->
-            <!-- <th>Full Name</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(user,index) in top_ten_earners.data" :key="user.id"> -->
-            <!-- <td>{{ i++ }}.</td> -->
-            <!-- <td v-html="`${(index + 1) + ((top_ten_earners.current_page - 1) * 10)}.`"></td> -->
-            <!-- <td class="border-b-0 lg:w-6 before:hidden">
-                <UserAvatar :username="user.name" class="w-24 h-24 mx-auto lg:w-6 lg:h-6" />
-              </td> -->
-            <!-- <td data-label="Name">
-                {{ user.name }}
-              </td>
-              <td data-label="Amount" v-html="mainStore.addCommas(user.total_earnings)">
-
-              </td>
-
-            </tr>
-          </tbody>
-        </table> -->
-            <!-- <TableSampleClients /> -->
-
-
-            <!-- </CardBox> -->
-
-
+                <!-- Invoices -->
+                <CardBox>
+                    <h2 class="text-lg font-semibold mb-3">Recent Invoices</h2>
+                    <ul>
+                        <li v-for="invoice in recentInvoices" :key="invoice.id" class="border-b py-2 text-sm">
+                            Invoice #{{ invoice.invoice_number }} — {{ invoice.status }}
+                        </li>
+                    </ul>
+                    <a v-if="recentInvoices.length" :href="route('admin.invoices.index')"
+                        class="block mt-3 px-4 py-2 text-white text-center rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-emerald-500 hover:to-green-500">
+                        View all invoices →
+                    </a>
+                </CardBox>
+            </div>
         </SectionMain>
     </LayoutAuthenticated>
 </template>

@@ -43,6 +43,8 @@ return new class extends Migration
             // $table->foreignIdFor(State::class)->constrained()->onDelete('cascade')->nullable();
 
             $table->boolean('business_registered')->default(false);
+            $table->timestamp('business_registered_at')->nullable();
+
             $table->boolean('created')->default(false);
             $table->string('created_date')->nullable();
             $table->string('created_time')->nullable();
