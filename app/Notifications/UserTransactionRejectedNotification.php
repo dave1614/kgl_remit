@@ -43,8 +43,14 @@ class UserTransactionRejectedNotification extends Notification
         $this->first_message .= "<b>To:</b> {$transaction->toCurrency->code}<br>";
         $this->first_message .= "<b>Amount Beneficiary Would Receive: </b>" .
             $transaction->fromCurrency->code . number_format($transaction->amount_to_receive, 2) . "<br>";
-        $this->first_message .= "<b>Amount You Intended to Pay: </b>" .
+
+        if(is_null($transaction->final_amount_to_pay)){
+            $this->first_message .= "<b>Amount You Intended to Pay: </b>" .
             $transaction->toCurrency->code . number_format($transaction->amount_to_pay, 2) . "<br><br>";
+        }else{
+            $this->first_message .= "<b>Amount You Intended to Pay: </b>" .
+            $transaction->toCurrency->code . number_format($transaction->final_amount_to_pay, 2) . "<br><br>";
+        }
         $this->first_message .= "<b>Reason for Rejection:</b> {$reason} <br><br>";
         $this->first_message .= "Please contact support if you have any questions about this rejection.<br>";
 

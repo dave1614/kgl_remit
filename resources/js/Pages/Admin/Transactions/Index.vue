@@ -635,6 +635,10 @@ onMounted(() => {
 
                 <div class="grid grid-cols-12 gap-6">
                     <div class="col-span-12"></div>
+
+                    <BaseButton v-if="selectedTransaction?.business_invoice_path != null" color="contrast" label="View Uploaded Invoice" class="col-span-6"
+                            :href="`/storage/${selectedTransaction.business_invoice_path}`" target="_blank" />
+
                     <BaseButton v-if="selectedTransaction?.invoice_number != null" target="_blank" color="success"
                         label="View Invoice" class="col-span-6"
                         :href="route('client.transactions.invoice', selectedTransaction?.id)" />
@@ -658,10 +662,18 @@ onMounted(() => {
 
                 <div class="space-y-6">
                     <!-- Approve -->
+
+                    <div v-if="allowedActions.canApprove" class="border rounded p-4 bg-blue-50">
+                        <h5 class="font-semibold mb-2 capitalize">View uploaded business invoice</h5>
+                        <BaseButton color="info" label="View Invoice" class="w-full"
+                            :href="`/storage/${selectedTransaction.business_invoice_path}`" target="_blank" />
+                    </div>
+
+
                     <!-- Inside CardBoxModal for Actions -->
                     <form @submit.prevent="approveTransaction" v-if="allowedActions.canApprove"
                         class="border rounded p-4 bg-green-50 space-y-3">
-                        <h5 class="font-semibold mb-2">Approve & Send Invoice</h5>
+                        <h5 class="font-semibold mb-2">Approve & Send Payment Invoice</h5>
 
                         <!-- <FormField label="Official Rate">
                             <FormControl v-model="approvalForm.official_rate" type="number"

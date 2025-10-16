@@ -30,6 +30,19 @@ const toCurrency = ref(null)
 const loading = ref(false)
 const submitting = ref(false)
 
+
+const invoiceFile = ref(null)
+const invoiceFileName = ref('')
+
+const handleFileUpload = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+        invoiceFile.value = file
+        invoiceFileName.value = file.name
+    }
+}
+
+
 // valid "to" currencies based on selected "from"
 const validToCurrencies = computed(() => {
     if (!fromCurrencyId.value) return []
@@ -78,7 +91,6 @@ const calculate = async () => {
 
 
 const submitTransaction = async () => {
-    // confirmation first
     const result = await Swal.fire({
         title: 'Confirm Transaction',
         text: 'Are you sure you want to submit this transaction?',
@@ -90,64 +102,84 @@ const submitTransaction = async () => {
     if (!result.isConfirmed) return
 
     submitting.value = true
+
     try {
-        // call axios directly or use router.post with preserveState:false
-        // const { data } = await axios.post(route('client.transactions.store'), {
-        //     from_currency_id: Number(fromCurrencyId.value),
-        //     to_currency_id: Number(toCurrencyId.value),
-        //     amount_to_receive: amount.value,
-        //     amount_to_pay: convertedAmount.value
-        // })
+        const formData = new FormData()
+        formData.append('from_currency_id', fromCurrencyId.value)
+        formData.append('to_currency_id', toCurrencyId.value)
+        formData.append('amount_to_receive', amount.value)
+        formData.append('amount_to_pay', convertedAmount.value)
+        if (invoiceFile.value) formData.append('business_invoice', invoiceFile.value)
 
-        const { response } = await useAxios(route('client.transactions.store'), 'Processing your transaction request...', {
-            from_currency_id: Number(fromCurrencyId.value),
-            to_currency_id: Number(toCurrencyId.value),
-            amount_to_receive: amount.value,
-            amount_to_pay: convertedAmount.value
-        }, 'post');
+        const res = await axios.post(route('client.transactions.store'), formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        })
 
-        // console.log(response.value)
-        const data = response.value.data
+        const data = res.data
 
-        if(data.success){
-
-            // show toast
+        if (data.success) {
             mainStore.toast = 'Successful'
-
-            // now show success Swal AFTER response is done
             await Swal.fire({
                 icon: 'success',
                 title: 'Submitted',
-                text: data.message ?? `Transaction request has been submitted successfully to admin. You'll be notified with updates.`,
-                allowEscapeKey: false,
-                allowOutsideClick: false
+                text: data.message ?? 'Transaction submitted successfully.',
             })
-
-            // optional reload or route change
             document.location.reload()
-        }else{
-            // show toast
+        } else {
             mainStore.toast = 'Error'
-
-            // show error Swal
             await Swal.fire({
                 icon: 'error',
-                title: 'Oops…',
-                text: data.message ?? `Something went wrong while submitting your transaction.`
+                title: 'Upload Failed',
+                text: data.message ?? 'Something went wrong while submitting your transaction.',
             })
         }
-        // or router.visit(route('profile.show', user.slug))
+
     } catch (err) {
         console.error(err)
-        await Swal.fire({
-            icon: 'error',
-            title: 'Oops…',
-            text: 'Something went wrong while submitting your transaction.'
-        })
+
+        // Handle backend validation errors
+        if (err.response?.status === 422) {
+            const errors = err.response.data.errors || {}
+
+            // Build a combined message string for multiple errors
+            const errorMessages = Object.entries(errors)
+                .map(([key, msgs]) => {
+                    if (key === 'business_invoice') {
+                        return `Invoice file: ${msgs.join(', ')}`
+                    }
+                    return msgs.join(', ')
+                })
+                .join('\n')
+
+            await Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                html: `<pre style="text-align:left; white-space:pre-wrap;">${errorMessages}</pre>`,
+            })
+        }
+        // Handle specific upload issues
+        else if (err.response?.status === 413) {
+            await Swal.fire({
+                icon: 'error',
+                title: 'File Too Large',
+                text: 'The selected invoice file is too large. Maximum size allowed is 5 MB.',
+            })
+        }
+        // Handle generic server or network errors
+        else {
+            await Swal.fire({
+                icon: 'error',
+                title: 'Upload Error',
+                text:
+                    err.response?.data?.message ??
+                    'An unexpected error occurred while submitting your transaction. Please try again.',
+            })
+        }
     } finally {
         submitting.value = false
     }
 }
+
 
 
 </script>
@@ -189,6 +221,16 @@ const submitTransaction = async () => {
                             </option>
                         </select>
                     </FormField>
+
+                    <FormField label="Upload Business Invoice" class="w-full">
+                        <input type="file" @change="handleFileUpload" accept=".pdf,.jpg,.jpeg,.png"
+                            class="p-3 border rounded w-full focus:ring-2 focus:ring-blue-400" />
+
+                    </FormField>
+                    <p v-if="invoiceFileName" class="text-sm text-gray-500 mt-1">
+                        Selected: {{ invoiceFileName }}
+                    </p>
+
 
                     <BaseButton :disabled="loading || !validToCurrencies.length" color="success" label="Calculate"
                         class="w-full" @click="calculate" />

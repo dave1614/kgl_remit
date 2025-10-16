@@ -19,6 +19,7 @@ class Transaction extends Model
         'amount_to_pay',
         'status',
         'first_rate',
+        'business_invoice_path',
     ];
 
 

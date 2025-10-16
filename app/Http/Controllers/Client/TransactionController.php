@@ -181,50 +181,99 @@ class TransactionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(Request $request)
     {
         $validated = $request->validate([
             'from_currency_id' => 'required|exists:currencies,id',
             'to_currency_id'   => 'required|exists:currencies,id',
             'amount_to_receive' => 'required|numeric|min:0.01',
-            'amount_to_pay'    => 'required|numeric|min:0.01'
+            'amount_to_pay'    => 'required|numeric|min:0.01',
+            'business_invoice' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // up to 5MB
         ]);
 
         $user = $request->user();
-
         $business = BusinessRegistration::where('user_id', $user->id)->first();
-
         $trans_id = $this->functions->generateNewTransactionId();
+
         $rate = ExchangeRate::where('from_currency_id', $request->from_currency_id)
             ->where('to_currency_id', $request->to_currency_id)
             ->first();
 
-        // Create transaction in pending_request state
+        // ✅ Handle file upload
+        $invoicePath = null;
+        if ($request->hasFile('business_invoice')) {
+            $invoicePath = $request->file('business_invoice')->store('invoices/business', 'public');
+        }
+
         $transaction = Transaction::create([
             'trans_id' => $trans_id,
-            'user_id'           => $user->id,
-            'business_id' =>    $business->id,
-            'from_currency_id'  => $validated['from_currency_id'],
-            'to_currency_id'    => $validated['to_currency_id'],
+            'user_id' => $user->id,
+            'business_id' => $business?->id,
+            'from_currency_id' => $validated['from_currency_id'],
+            'to_currency_id' => $validated['to_currency_id'],
             'amount_to_receive' => $validated['amount_to_receive'],
-            'amount_to_pay'     => $validated['amount_to_pay'],
-            'status'            => 'pending_request',
-            'first_rate' => $rate?->rate
-            // invoice expiry will be set later by admin or a config default
+            'amount_to_pay' => $validated['amount_to_pay'],
+            'status' => 'pending_request',
+            'first_rate' => $rate?->rate,
+            'business_invoice_path' => $invoicePath,
         ]);
 
-        // Notify user + admin
+        // Notifications
         $admin_user = $this->functions->getAdminUser();
-
         Notification::send($user, new TransactionCreatedNotification($transaction, $user));
         Notification::send($admin_user, new AdminTransactionCreatedNotification($transaction, $user, $business));
 
-        // In controller
         return response()->json([
             'success' => true,
-            'message' => 'Transaction request to admin submitted. You will be notified shortly.'
+            'message' => 'Transaction request submitted successfully with invoice attached.'
         ]);
     }
+
+    // public function store(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'from_currency_id' => 'required|exists:currencies,id',
+    //         'to_currency_id'   => 'required|exists:currencies,id',
+    //         'amount_to_receive' => 'required|numeric|min:0.01',
+    //         'amount_to_pay'    => 'required|numeric|min:0.01'
+    //     ]);
+
+    //     $user = $request->user();
+
+    //     $business = BusinessRegistration::where('user_id', $user->id)->first();
+
+    //     $trans_id = $this->functions->generateNewTransactionId();
+    //     $rate = ExchangeRate::where('from_currency_id', $request->from_currency_id)
+    //         ->where('to_currency_id', $request->to_currency_id)
+    //         ->first();
+
+    //     // Create transaction in pending_request state
+    //     $transaction = Transaction::create([
+    //         'trans_id' => $trans_id,
+    //         'user_id'           => $user->id,
+    //         'business_id' =>    $business->id,
+    //         'from_currency_id'  => $validated['from_currency_id'],
+    //         'to_currency_id'    => $validated['to_currency_id'],
+    //         'amount_to_receive' => $validated['amount_to_receive'],
+    //         'amount_to_pay'     => $validated['amount_to_pay'],
+    //         'status'            => 'pending_request',
+    //         'first_rate' => $rate?->rate
+    //         // invoice expiry will be set later by admin or a config default
+    //     ]);
+
+    //     // Notify user + admin
+    //     $admin_user = $this->functions->getAdminUser();
+
+    //     Notification::send($user, new TransactionCreatedNotification($transaction, $user));
+    //     Notification::send($admin_user, new AdminTransactionCreatedNotification($transaction, $user, $business));
+
+    //     // In controller
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Transaction request to admin submitted. You will be notified shortly.'
+    //     ]);
+    // }
 
     /**
      * Display the specified resource.

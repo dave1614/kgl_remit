@@ -41,7 +41,7 @@ class UserTransactionProcessedNotification extends Notification
         $this->first_message .= "<b>Amount Beneficiary Receives: </b>" .
             $transaction->fromCurrency->code . number_format($transaction->amount_to_receive, 2) . "<br>";
         $this->first_message .= "<b>Amount You Paid: </b>" .
-            $transaction->toCurrency->code . number_format($transaction->amount_to_pay, 2) . "<br><br>";
+            $transaction->toCurrency->code . number_format($transaction->final_amount_to_pay, 2) . "<br><br>";
 
         $this->first_message .= "You can view or download your full receipt by clicking the button below.<br>";
 

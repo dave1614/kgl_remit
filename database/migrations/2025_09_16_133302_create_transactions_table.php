@@ -34,6 +34,8 @@ return new class extends Migration
             $table->foreignId('to_currency_id')
                 ->constrained('currencies')
                 ->onDelete('cascade');
+            $table->string('business_invoice_path')->nullable();
+
 
             // amounts
             $table->decimal('official_rate', 20, 6)->nullable(); //International rate
